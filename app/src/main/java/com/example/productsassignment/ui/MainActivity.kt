@@ -2,33 +2,44 @@ package com.example.productsassignment.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import androidx.fragment.app.Fragment
 import com.example.productsassignment.databinding.ActivityMainBinding
-import com.example.productsassignment.MainPresenter.IMainView
-import com.example.productsassignment.MainPresenter.MainPresenter
-import com.example.productsassignment.ProductAdpter
+import com.example.productsassignment.ui.all_Products.AllProductsFragment
+import com.example.productsassignment.ui.fragrances.FragrancesFragment
 
-import com.example.productsassignment.model.Products
+import com.example.productsassignment.ui.groceries.GroceriesFragment
+import com.example.productsassignment.ui.smart_phone.SmartPhonesFragment
+import com.google.android.material.tabs.TabLayoutMediator
 
 
-class MainActivity : AppCompatActivity(), IMainView {
+class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+    val fragments = listOf<Fragment>(
+        AllProductsFragment(),
+        SmartPhonesFragment(),
+        FragrancesFragment(),
+        GroceriesFragment()
+    )
+    val tabTitles = listOf("All", "SmartPhones", "Fragrances", "Groceries")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val presenter = MainPresenter(this)
-        presenter.getCurrentProductsStatus()
-
+        initViewPager()
+        initTabLayout()
     }
 
-    override fun onGetProductsStatusSuccess(productsData: Products) {
-        val adpter =ProductAdpter(this,productsData.products)
-        binding.recyclerProducts.adapter=adpter
+    fun initViewPager() {
+        val pagerAdpter = MyPagerAdpter(this, fragments)
+        binding.viewPager.adapter = pagerAdpter
     }
 
-    override fun onGetProductsStatuFailure(e: Exception) {
-        TODO("Not yet implemented")
+    fun initTabLayout() {
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = tabTitles[position]
+        }.attach()
     }
+
 }
